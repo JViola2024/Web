@@ -6,7 +6,9 @@ Sikeres bejelentkezés után megjelenik az eszközök listája.
 
 Lehet:
   *új eszközt hozzáadni
+  
   *a meglévő eszközöket megnézni
+  
   *eszközt törölni
   
   *kijelentkezni az alkalmazásból
