@@ -5,6 +5,7 @@ Az alkalmazás használatához be kell jelentkezni felhasználónévvel és jels
 Sikeres bejelentkezés után megjelenik az eszközök listája.
 
 Lehet:
+
   *új eszközt hozzáadni
   
   *a meglévő eszközöket megnézni
