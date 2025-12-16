@@ -13,6 +13,7 @@ Lehet:
   *eszközt törölni
   
   *kijelentkezni az alkalmazásból
+  
 Az adatok egy MongoDB adatbázisban tárolódnak, ezért nem vesznek el akkor sem,
 ha a szervert újraindítjuk.
 A felhasználói felület egyszerű, de átlátható, a hangsúly a működésen volt.
