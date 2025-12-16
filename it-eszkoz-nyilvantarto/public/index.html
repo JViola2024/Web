@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>IT eszköz nyilvántartó</title>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --danger: #dc2626;
+      --danger-dark: #991b1b;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #1f2937;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    h2 {
+      margin-top: 40px;
+    }
+
+    form {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 8px;
+      width: 350px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button[type="submit"] {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    button[type="submit"]:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .torles {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .torles:hover {
+      background-color: var(--danger-dark);
+    }
+
+    .kijelentkezes {
+      background-color: #6b7280;
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .kijelentkezes:hover {
+      background-color: #4b5563;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    th {
+      background-color: #eef2ff;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    #hiba {
+      color: var(--danger);
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    #userInfo {
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <h1>IT eszközök nyilvántartása</h1>
+  <p id="userInfo"></p>
+
+  <h2>Új eszköz hozzáadása</h2>
+  <p id="hiba"></p>
+
+  <form id="eszkozForm">
+    <input type="text" id="nev" placeholder="Eszköz neve" required>
+    <input type="text" id="tipus" placeholder="Típus" required>
+    <input type="text" id="sorozatszam" placeholder="Sorozatszám" required>
+    <input type="date" id="beszerzesDatuma" required>
+    <button type="submit">Mentés</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Név</th>
+        <th>Típus</th>
+        <th>Sorozatszám</th>
+        <th>Állapot</th>
+        <th>Beszerzés dátuma</th>
+        <th>Művelet</th>
+      </tr>
+    </thead>
+    <tbody id="eszkozTabla"></tbody>
+  </table>
+  <br><br>
+<button class="kijelentkezes" onclick="kijelentkezes()">
+  Kijelentkezés
+</button>
+
+
+</div>
+
+<script>
+  //VÉDELEM
+  if (!localStorage.getItem('token')) {
+    window.location.href = '/login.html';
+  }
+
+  //FELHASZNÁLÓ KIÍRÁSA
+  const felhasznalo = localStorage.getItem('felhasznalo');
+  document.getElementById('userInfo').innerText =
+    'Bejelentkezve mint: ' + felhasznalo;
+
+  //KIJELENTKEZÉS
+  function kijelentkezes() {
+    localStorage.clear();
+    window.location.href = '/login.html';
+  }
+
+  //TÖRLÉS
+  function torol(id) {
+    if (!confirm('Biztosan törlöd az eszközt?')) return;
+
+    fetch('/api/eszkozok/' + id, {
+      method: 'DELETE'
+    })
+    .then(() => location.reload());
+  }
+
+  //ÚJ ESZKÖZ
+  const form = document.getElementById('eszkozForm');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    document.getElementById('hiba').innerText = '';
+
+    const adat = {
+      nev: document.getElementById('nev').value,
+      tipus: document.getElementById('tipus').value,
+      sorozatszam: document.getElementById('sorozatszam').value,
+      allapot: 'hasznalhato',
+      beszerzesDatuma: document.getElementById('beszerzesDatuma').value
+    };
+
+    fetch('/api/eszkozok', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(adat)
+    })
+    .then(res => res.json())
+    .then(valasz => {
+      if (valasz.hiba) {
+        document.getElementById('hiba').innerText = valasz.hiba;
+      } else {
+        location.reload();
+      }
+    });
+  });
+
+  //LISTA BETÖLTÉSE
+  fetch('/api/eszkozok')
+    .then(res => res.json())
+    .then(adatok => {
+      const tabla = document.getElementById('eszkozTabla');
+
+      adatok.forEach(e => {
+        const sor = document.createElement('tr');
+        sor.innerHTML = `
+          <td>${e.nev}</td>
+          <td>${e.tipus}</td>
+          <td>${e.sorozatszam}</td>
+          <td>${e.allapot === 'hasznalhato' ? 'használható' : e.allapot}</td>
+          <td>${new Date(e.beszerzesDatuma).toLocaleDateString()}</td>
+          <td><button class="torles" onclick="torol('${e._id}')">Törlés</button></td>
+        `;
+        tabla.appendChild(sor);
+      });
+    });
+</script>
+
+</body>
+</html>
