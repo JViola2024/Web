@@ -63,8 +63,6 @@ Kijelentkezéskor:
 - újabb belépés csak ismételt hitelesítéssel lehetséges
 
 A felületen megjelenik az aktuálisan bejelentkezett felhasználó neve  
-(„Bejelentkezve mint: admin”).
-
 ---
 
 ## 8. Jogosultságkezelés
